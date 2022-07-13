@@ -1,0 +1,9 @@
+    <Resource name="jdbc/springxe"
+     auth="Container"
+     type="javax.sql.DataSource"
+     driverClassName="oracle.jdbc.driver.OracleDriver"
+     username="hr"
+     password="123456"
+     url="jdbc:oracle:thin:@localhost:1521:xe"
+     maxWait="5000"
+    />

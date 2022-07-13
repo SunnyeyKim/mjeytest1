@@ -1,0 +1,18 @@
+--답변형게시판
+--테이블
+create table replyboard(
+bid number(4) PRIMARY key,
+bname varchar2(20),
+btitle varchar2(100),
+bcontent varchar2(300),
+bdate Date default sysdate,
+bhit number(4) default 0,
+bgroup number(4), --원글의 bid
+bstep number(4),--답글이 달린글들의 순서
+bindent number(4));--들여쓰기
+
+create sequence replyboard_seq;
+select * from replyboard;
+
+insert into replyboard values(replyboard_seq.nextval,'cj','java1','javacontent1',sysdate,0,replyboard_seq.currval,0,0);
+commit;

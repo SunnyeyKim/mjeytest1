@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tech.sprj09.dao.IDao">
+	<sql id="includelist">
+		<choose>
+			<when test="param4==1">
+				WHERE BTITLE LIKE '%'||#{param1}||'%'
+			</when>
+			<when test="param4==2">
+				WHERE BCONTENT LIKE '%'||#{param1}||'%'
+			</when>
+			<when test="param4==3">
+				WHERE BTITLE LIKE '%'||#{param1}||'%' OR BCONTENT LIKE '%'||#{param1}||'%'
+			</when>
+			<otherwise>
+			
+			</otherwise>
+		</choose>
+	</sql>
+
+<!-- 	<select id="selectBoardTotCount" resultType="Integer"> -->
+	<select id="selectBoardTotCount1" resultType="Integer">
+	<!-- SELECT COUNT(*) FROM REPLYBOARD -->
+	SELECT COUNT(*) FROM REPLYBOARD WHERE BTITLE LIKE '%'||#{param3}||'%'
+	<!-- btitle에 체크하고 검색 눌렀을때 -->
+	</select>
+	<select id="selectBoardTotCount2" resultType="Integer">
+	SELECT COUNT(*) FROM REPLYBOARD WHERE BCONTENT LIKE '%'||#{param3}||'%'
+	</select>
+	<select id="selectBoardTotCount3" resultType="Integer">
+	SELECT COUNT(*) FROM REPLYBOARD WHERE BTITLE LIKE '%'||#{param3}||'%' OR BCONTENT LIKE '%'||#{param3}||'%'
+	</select>
+	<select id="selectBoardTotCount4" resultType="Integer">
+	SELECT COUNT(*) FROM REPLYBOARD
+	</select>
+
+	<select id="list" resultType="com.tech.sprj09.dto.BoardDto">
+		<!-- SELECT BID,BNAME,BTITLE,BCONTENT,BDATE,
+		BHIT,BGROUP,BSTEP,BINDENT FROM REPLYBOARD
+		ORDER BY BGROUP DESC, BSTEP ASC -->
+		
+		<!-- SELECT BID,BNAME,BTITLE,BCONTENT,BDATE,
+		BHIT,BGROUP,BSTEP,BINDENT FROM
+		(SELECT ROWNUM NUM, N.*FROM
+		(SELECT * FROM REPLYBOARD ORDER BY BDATE DESC) N)
+		WHERE NUM BETWEEN #{param1} AND #{param2} -->
+		
+		SELECT BID,BNAME,BTITLE,BCONTENT,BDATE,
+     	BHIT,BGROUP,BSTEP,BINDENT  FROM
+		(SELECT ROWNUM NUM,N.* FROM (SELECT * FROM REPLYBOARD ORDER BY BDATE DESC) N
+		<include refid="includelist" />
+		<!-- WHERE BTITLE LIKE '%'|| #{param1} || '%' OR  BCONTENT LIKE '%'|| #{param1} || '%'-->
+		)
+		WHERE NUM BETWEEN #{param1} AND #{param2}
+		
+		
+<!-- 		SELECT BID,BNAME,BTITLE,BCONTENT,BDATE,
+		BHIT,BGROUP,BSTEP,BINDENT  FROM
+		(SELECT ROWNUM NUM, N.* FROM (SELECT * FROM REPLYBOARD ORDER BY BDATE DESC) N
+		<include refid="includelist" />
+		)
+		WHERE NUM BETWEEN #{param1} AND #{param2} -->
+		
+		<!-- 동적쿼리 사용 -->
+		
+	</select>
+	
+	<insert id="write">
+		INSERT INTO REPLYBOARD VALUES(REPLYBOARD_SEQ.NEXTVAL,
+		#{param1},#{param2},#{param3},SYSDATE,0,
+		REPLYBOARD_SEQ.CURRVAL,0,0,#{param4})
+	</insert>
+	
+	<select id="contentView" resultType="com.tech.sprj09.dto.BoardDto">
+		SELECT BID,BNAME,BTITLE,BCONTENT
+			,BDATE,BHIT,BGROUP,BSTEP,BINDENT,FILESRC
+			FROM REPLYBOARD WHERE BID=#{param1}
+	</select>
+	
+	<update id="modify">
+		UPDATE REPLYBOARD 
+			SET BNAME=#{param2}, BTITLE=#{param3},
+			BCONTENT=#{param4}	WHERE BID=#{param1}
+	</update>
+	<update id="upHit">
+		UPDATE REPLYBOARD
+			SET BHIT=BHIT+1
+			WHERE BID=#{param1}
+	</update>
+	<delete id="delete">
+		DELETE FROM REPLYBOARD WHERE BID=#{param1}
+	</delete>
+	
+	<select id="replyView" resultType="com.tech.sprj09.dto.BoardDto">
+		SELECT BID,BNAME,BTITLE,BCONTENT
+		,BDATE,BHIT,BGROUP,BSTEP,BINDENT
+		 FROM REPLYBOARD WHERE BID=#{param1}
+	</select>
+	<insert id="reply">
+		INSERT INTO REPLYBOARD(BID,BNAME,
+			BTITLE,BCONTENT,BGROUP,BSTEP,BINDENT)
+			VALUES(REPLYBOARD_SEQ.NEXTVAL,#{param2},
+			#{param3},#{param4},
+			#{param5},#{param6}+1,
+			#{param7}+1)
+	</insert>
+	<update id="replyShape">
+		UPDATE REPLYBOARD SET BSTEP=BSTEP+1
+		WHERE BGROUP=#{param1} AND BSTEP>#{param2}
+	</update>
+	
+
+</mapper>
